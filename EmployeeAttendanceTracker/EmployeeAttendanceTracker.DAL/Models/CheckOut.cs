@@ -10,9 +10,13 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.Models
         /// </summary>
         public DateTime CheckOutTime { get; set; }
         /// <summary>
-        /// Geolocation of the place of confirmation of leaving at work (latitude, longitude)
+        /// Latitude of the place of confirmation of leaving at work
         /// </summary>
-        public Point CheckOutLocation { get; set; }
+        public double Latitude { get; set; }
+        /// <summary>
+        /// Longitude of the place of confirmation of leaving at work
+        /// </summary>
+        public double Longitude { get; set; }
 
         #region Foreign kays
         /// <summary>
