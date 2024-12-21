@@ -47,6 +47,7 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL
                 .HasForeignKey(x => x.CompanyId);
             #endregion
 
+
         }
     }
 }

@@ -1,3 +1,5 @@
+using EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Interfaces;
+using EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services;
 using EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +21,8 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(connectionString));
 
 // Add Services
-
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICompanyService,  CompanyService>();
 
 var app = builder.Build();
 

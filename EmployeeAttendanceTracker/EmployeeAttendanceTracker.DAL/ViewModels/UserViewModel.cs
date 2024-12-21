@@ -23,22 +23,11 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.ViewModels
         /// </summary>
         [StringLength(50)]
         public string LastName { get; set; }
-        /// <summary>
-        /// User Role (0: Admin, 1: Employee)
-        /// </summary>
-        public Role Role { get; set; }
-        /// <summary>
-        /// Foreign key WorkSchedule.Id - Employee work schedule
-        /// </summary>
-        public int WorkScheduleId { get; set; }
-        /// <summary>
-        /// Foreign key Company.Id - User company
-        /// </summary>
-        public int CompanyId { get; set; }
+        
 
     }
     /// <summary>
-    /// ViewModel for user creation (registration)
+    /// ViewModel for user creation
     /// </summary>
     public class UserCreateViewModel : UserBaseViewModel
     {
@@ -59,6 +48,18 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.ViewModels
         /// User Primary Key
         /// </summary>
         public int Id { get; set; }
+        /// <summary>
+        /// User Role (0: Admin, 1: Employee)
+        /// </summary>
+        public Role Role { get; set; }
+        /// <summary>
+        /// Foreign key WorkSchedule.Id - Employee work schedule
+        /// </summary>
+        public int WorkScheduleId { get; set; }
+        /// <summary>
+        /// Foreign key Company.Id - User company
+        /// </summary>
+        public int CompanyId { get; set; }
     }
     /// <summary>
     /// ViewModel to update user data
@@ -69,6 +70,10 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.ViewModels
         /// Primary Key
         /// </summary>
         public int Id { get; set; }
+        /// <summary>
+        /// Foreign key WorkSchedule.Id - Employee work schedule
+        /// </summary>
+        public int WorkScheduleId { get; set; }
         /// <summary>
         /// Checking the password for a minimum of 8 characters
         /// </summary>

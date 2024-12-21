@@ -12,19 +12,22 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.Models
         /// User Role (0: Admin, 1: Employee)
         /// </summary>
         public Role Role { get; set; }
+        /// <summary>
+        /// Hash password
+        /// </summary>
         public string Password { get; set; }
 
         #region Foreign keys
         /// <summary>
         /// Foreign key WorkSchedule.Id - Employee work schedule
         /// </summary>
-        public int WorkScheduleId { get; set; }
+        public int? WorkScheduleId { get; set; }
         public WorkSchedule WorkSchedule { get; set; }
 
         /// <summary>
         /// Foreign key Company.Id - User company
         /// </summary>
-        public int CompanyId { get; set; }
+        public int? CompanyId { get; set; }
         public Company Company { get; set; }
 
         public ICollection<CheckIn> CheckIns { get; set; } = new List<CheckIn>();
