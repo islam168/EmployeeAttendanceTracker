@@ -29,7 +29,7 @@
         /// <summary>
         /// Foreign key User.Id - User (Employee) who has a work schedule
         /// </summary>
-        public int EmployeeId { get; set; }
+        public int UserId { get; set; }
         public User User { get; set; }
         #endregion
     }

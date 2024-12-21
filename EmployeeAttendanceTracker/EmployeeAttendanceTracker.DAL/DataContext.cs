@@ -14,6 +14,7 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL
         public DbSet<WorkSchedule> WorkSchedules { get; set; }
         public DbSet<CheckIn> CheckIns { get; set; }
         public DbSet<CheckOut> CheckOuts { get; set; }
+        public DbSet<Company> Companys { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,25 +24,28 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL
             modelBuilder.Entity<CheckOut>()
                 .HasOne(x => x.User)
                 .WithMany(x => x.CheckOuts)
-                .HasForeignKey(x => x.EmployeeId);
+                .HasForeignKey(x => x.UserId);
             #endregion
 
             #region CheckIn
             modelBuilder.Entity<CheckIn>()
                 .HasOne(x => x.User)
                 .WithMany(x => x.CheckIns)
-                .HasForeignKey(x => x.EmployeeId);
+                .HasForeignKey(x => x.UserId);
 
             #endregion
 
-            #region WorkSchedule
-            modelBuilder.Entity<WorkSchedule>()
-                .HasOne(x => x.User)
-                .WithOne(x => x.WorkSchedule)
-                .HasForeignKey<CheckOut>(x => x.EmployeeId);
-            #endregion
+            #region User
+            modelBuilder.Entity<User>()
+                .HasOne(x => x.WorkSchedule)
+                .WithOne(x => x.User)
+                .HasForeignKey<User>(x => x.WorkScheduleId);
 
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<User>()
+                .HasOne(x => x.Company)
+                .WithMany(x => x.Users)
+                .HasForeignKey(x => x.CompanyId);
+            #endregion
 
         }
     }

@@ -1,5 +1,4 @@
 ﻿using EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.Enums;
-using System.Drawing;
 
 namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.Models
 {
@@ -9,14 +8,6 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.Models
         public string Email { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        /// <summary>
-        /// Latitude of the user workplace
-        /// </summary>
-        public double WorkplaceLocationLatitude { get; set; }
-        /// <summary>
-        /// Longitude of the user workplace
-        /// </summary>
-        public double WorkplaceLocationLongitude { get; set; }
         /// <summary>
         /// User Role (0: Admin, 1: Employee)
         /// </summary>
@@ -29,6 +20,12 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.Models
         /// </summary>
         public int WorkScheduleId { get; set; }
         public WorkSchedule WorkSchedule { get; set; }
+
+        /// <summary>
+        /// Foreign key Company.Id - User company
+        /// </summary>
+        public int CompanyId { get; set; }
+        public Company Company { get; set; }
 
         public ICollection<CheckIn> CheckIns { get; set; } = new List<CheckIn>();
 

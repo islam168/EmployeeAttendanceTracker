@@ -19,9 +19,7 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
-    <Folder Include="EmployeeAttendanceTracker.BLL\Interfaces\" />
     <Folder Include="EmployeeAttendanceTracker.BLL\Services\" />
-    <Folder Include="EmployeeAttendanceTracker.DAL\ViewModels\" />
   </ItemGroup>
 
 </Project>
