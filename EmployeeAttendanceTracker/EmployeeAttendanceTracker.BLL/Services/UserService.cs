@@ -4,16 +4,24 @@ using EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.Enums;
 using EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.Models;
 using EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services
 {
     public class UserService : IUserService
     {
         private readonly DataContext _context;
-        public UserService(DataContext context) 
+        private readonly IConfiguration _configuration;
+        public UserService(DataContext context, IConfiguration configuration) 
         {
             _context = context;
+            _configuration= configuration;
         }
+
+
         public async Task<UserCreateViewModel> CreateUser(UserCreateViewModel user, int adminId)
         {
             if (user == null) 
@@ -22,9 +30,10 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services
             }
 
             bool emailExists = await _context.Users.AnyAsync(u => u.Email == user.Email);
+
             if (emailExists)
             {
-                throw new InvalidOperationException("The user with this email is already exists.");
+                throw new InvalidOperationException("The employee with this email is already exists.");
             }
 
             // Get admin data by admin id
@@ -78,7 +87,7 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services
             throw new NotImplementedException();
         }
 
-        public Task<UserLoginViewModel> LoginUser(string email, string password)
+        public Task<UserUpdateViewModel> UpdateEmployee(UserUpdateViewModel user)
         {
             throw new NotImplementedException();
         }
@@ -88,7 +97,7 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services
             bool emailExists = await _context.Users.AnyAsync(u => u.Email == admin.Email);
             if (emailExists)
             {
-                throw new InvalidOperationException($"The administrator with this email is already exists.");
+                throw new KeyNotFoundException($"The administrator with this email is already exists.");
             }
 
             // Password hashing
@@ -114,9 +123,42 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services
             };
         }
 
-        public Task<UserUpdateViewModel> UpdateEmployee(UserUpdateViewModel user)
+        #region Login
+        public async Task<string> LoginUser(string email, string password)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+                throw new KeyNotFoundException("User Not Found");
+
+            bool checkPassword = BCrypt.Net.BCrypt.Verify(password, user.Password);
+            if (checkPassword) 
+            {
+                return GeneretateJWT(user);
+            }
+            return "Invalid Password";
         }
+
+        private string GeneretateJWT(User user)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var userClaims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            };
+
+            var token = new JwtSecurityToken(
+                claims: userClaims,
+                expires: DateTime.Now.AddDays(30),
+                signingCredentials: credentials
+                );
+
+            var tokenValue = new JwtSecurityTokenHandler().WriteToken(token); 
+
+            return tokenValue;
+        }
+
+        #endregion
     }
 }

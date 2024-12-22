@@ -1,5 +1,6 @@
 ﻿using EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Interfaces;
 using EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeAttendanceTracker.Controllers
@@ -22,6 +23,7 @@ namespace EmployeeAttendanceTracker.Controllers
         /// <param name="adminId"></param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateCompany([FromBody] CompanyCreateViewModel company, int adminId)
         {
             if (!ModelState.IsValid)

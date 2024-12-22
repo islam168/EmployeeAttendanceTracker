@@ -52,6 +52,6 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Interfaces
         /// <param name="email"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        Task<UserLoginViewModel> LoginUser(string email, string password);
+        Task<string> LoginUser(string email, string password);
     }
 }
