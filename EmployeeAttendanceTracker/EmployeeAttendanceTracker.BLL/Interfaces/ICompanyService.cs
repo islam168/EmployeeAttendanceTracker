@@ -23,6 +23,6 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Interfaces
         /// </summary>
         /// <param name="company"></param>
         /// <returns></returns>
-        Task<CompanyGetUpdateViewModel> UpdateCompany(CompanyGetUpdateViewModel company);
+        Task<CompanyGetUpdateViewModel> UpdateCompany(CompanyGetUpdateViewModel company, int adminCompanyId);
     }
 }

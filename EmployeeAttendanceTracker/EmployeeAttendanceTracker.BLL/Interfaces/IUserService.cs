@@ -23,7 +23,7 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Interfaces
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns> 
-        Task<UserUpdateViewModel> UpdateEmployee(UserUpdateViewModel user);
+        Task<EmployeeUpdateViewModel> UpdateEmployee(EmployeeUpdateViewModel user);
 
         /// <summary>
         /// Delete Employee Async
@@ -37,7 +37,7 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Interfaces
         /// </summary>
         /// <param name="employee"></param>
         /// <returns></returns>
-        Task<UserCreateViewModel> CreateUser(UserCreateViewModel employee, int adminId);
+        Task<UserCreateViewModel> CreateEmployee(UserCreateViewModel employee, int adminId);
 
         /// <summary>
         /// Register Admin Async
@@ -53,5 +53,7 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Interfaces
         /// <param name="password"></param>
         /// <returns></returns>
         Task<string> LoginUser(string email, string password);
+
+        Task<string> ChangePassword(ChangePasswordRequestViewModel requset);
     }
 }

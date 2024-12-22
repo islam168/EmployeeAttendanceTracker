@@ -1,4 +1,5 @@
-﻿using EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Interfaces;
+﻿using Azure.Core;
+using EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Interfaces;
 using EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL;
 using EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.Enums;
 using EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.Models;
@@ -22,14 +23,14 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services
         }
 
 
-        public async Task<UserCreateViewModel> CreateUser(UserCreateViewModel user, int adminId)
+        public async Task<UserCreateViewModel> CreateEmployee(UserCreateViewModel employee, int adminId)
         {
-            if (user == null) 
+            if (employee == null) 
             {
-                throw new ArgumentNullException(nameof(user));
+                throw new ArgumentNullException(nameof(employee));
             }
 
-            bool emailExists = await _context.Users.AnyAsync(u => u.Email == user.Email);
+            bool emailExists = await _context.Users.AnyAsync(u => u.Email == employee.Email);
 
             if (emailExists)
             {
@@ -49,13 +50,13 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services
             int? companyId = admin.CompanyId;
 
             // Password hashing
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(employee.Password);
 
             var newUser = new User
             {
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                Email = employee.Email,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
                 Role = Role.Employee,
                 CompanyId = companyId,
                 Password = passwordHash,
@@ -66,30 +67,99 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services
 
             return new UserCreateViewModel
             {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                Email = employee.Email,
+            };
+        }
+
+        public async Task<List<UserGetViewModel>> GetCompanyEmployees(int companyId)
+        {
+
+            var company = await _context.Companys.FindAsync(companyId);
+
+            if (company == null) 
+            {
+                return null;
+            }
+
+            var employees = await _context.Users
+                                          .Where(u => u.CompanyId == companyId)
+                                          .Select(u => new UserGetViewModel
+                                          {
+                                              // Mapping properties:
+                                              Id = u.Id,
+                                              FirstName = u.FirstName,
+                                              LastName = u.LastName,
+                                              WorkScheduleId = u.WorkScheduleId
+                                          })
+                                          .ToListAsync();
+
+            return employees;
+        }
+
+        public async Task<UserGetViewModel> GetEmployee(int id)
+        {
+            var employee = await _context.Users.FindAsync(id);
+
+            if (employee == null) 
+            {
+                return null;
+            }
+
+            return new UserGetViewModel
+            {
+                Id = employee.Id,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                WorkScheduleId= employee.WorkScheduleId
+            };
+        }
+
+        public async Task<EmployeeUpdateViewModel> UpdateEmployee(EmployeeUpdateViewModel user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user), "The user parameter cannot be null.");
+            }
+
+            var employee = await _context.Users.FindAsync(user.Id);
+
+            if (employee == null)
+            {
+                throw new ArgumentNullException(nameof(user), "The user parameter cannot be null.");
+            }
+
+            // Update properties
+            employee.Email = user.Email;
+            employee.FirstName = user.FirstName;
+            employee.LastName = user.LastName;
+
+            _context.Users.Update(employee);
+            await _context.SaveChangesAsync();
+
+            return new EmployeeUpdateViewModel
+            {
+                Id = employee.Id,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
                 Email = user.Email,
             };
         }
 
-        public Task<bool> DeleteEmployee(int id)
+        public async Task<bool> DeleteEmployee(int id)
         {
-            throw new NotImplementedException();
-        }
+            var employee = await _context.Users.FindAsync(id);
 
-        public Task<List<UserGetViewModel>> GetCompanyEmployees(int companyId)
-        {
-            throw new NotImplementedException();
-        }
+            if (employee == null) 
+            {
+                return false;
+            }
 
-        public Task<UserGetViewModel> GetEmployee(int id)
-        {
-            throw new NotImplementedException();
-        }
+            _context.Users.Remove(employee);
+            await _context.SaveChangesAsync();
 
-        public Task<UserUpdateViewModel> UpdateEmployee(UserUpdateViewModel user)
-        {
-            throw new NotImplementedException();
+            return true;
         }
 
         public async Task<UserCreateViewModel> RegisterAdmin(UserCreateViewModel admin)
@@ -129,7 +199,9 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
             if (user == null)
-                throw new KeyNotFoundException("User Not Found");
+            {
+                return "User Not Found";
+            }
 
             bool checkPassword = BCrypt.Net.BCrypt.Verify(password, user.Password);
             if (checkPassword) 
@@ -145,7 +217,9 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var userClaims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                new Claim("userId", user.Id.ToString()),
+                new Claim("companyId", user.CompanyId.ToString() ?? "null"),
+                new Claim("role", user.Role.ToString() ?? "null")
             };
 
             var token = new JwtSecurityToken(
@@ -160,5 +234,35 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services
         }
 
         #endregion
+
+        public async Task<string> ChangePassword(ChangePasswordRequestViewModel request)
+        {
+
+            int userId = request.userId;
+
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            string oldPassword = request.oldPassword;
+            string newPassword = request.newPassword;
+
+            var checkPassword = BCrypt.Net.BCrypt.Verify(oldPassword, user.Password);
+
+            if (checkPassword)
+            {
+                user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+
+                return "Password Сhanged";
+            }
+
+            return "Invalid Old Password";
+        }
     }
 }

@@ -55,7 +55,7 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.ViewModels
         /// <summary>
         /// Foreign key WorkSchedule.Id - Employee work schedule
         /// </summary>
-        public int WorkScheduleId { get; set; }
+        public int? WorkScheduleId { get; set; }
         /// <summary>
         /// Foreign key Company.Id - User company
         /// </summary>
@@ -64,7 +64,7 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.ViewModels
     /// <summary>
     /// ViewModel to update user data
     /// </summary>
-    public class UserUpdateViewModel : UserBaseViewModel
+    public class EmployeeUpdateViewModel : UserBaseViewModel
     {
         /// <summary>
         /// Primary Key
@@ -98,5 +98,30 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.DAL.ViewModels
         [Required]
         [MinLength(8)]
         public string Password {  set; get; }
+    }
+
+    /// <summary>
+    /// Change Password
+    /// </summary>
+    public class ChangePasswordRequestViewModel
+    {
+        /// <summary>
+        /// User Id
+        /// </summary>
+        public int userId {  set; get; }
+
+        /// <summary>
+        /// Old password that needs to be changed
+        /// </summary>
+        [Required]
+        [MinLength(8)]
+        public string oldPassword { set; get; }
+
+        /// <summary>
+        /// New password
+        /// </summary>
+        [Required]
+        [MinLength(8)]
+        public string newPassword { set; get; }
     }
 }

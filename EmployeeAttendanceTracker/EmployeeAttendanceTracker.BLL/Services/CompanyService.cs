@@ -21,10 +21,12 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services
             }
 
             var admin = await _context.Users.FindAsync(adminId);
+
             if (admin == null)
             {
                 throw new KeyNotFoundException($"Administrator with ID {adminId} not found.");
             }
+
             // Check if the admin has a company tied to the account. Admin cannot create more than 1 company
             if (admin.CompanyId != null) 
             {
@@ -55,14 +57,53 @@ namespace EmployeeAttendanceTracker.EmployeeAttendanceTracker.BLL.Services
             };
         }
 
-        public Task<CompanyGetUpdateViewModel> GetCompany(int id)
+        public async Task<CompanyGetUpdateViewModel> GetCompany(int id)
         {
-            throw new NotImplementedException();
+            var company = await _context.Companys.FindAsync(id);
+
+            if (company == null) 
+            {
+                return null;
+            }
+
+            return new CompanyGetUpdateViewModel
+            {
+                Id = company.Id,
+                Name = company.Name, 
+                CompanyLocationLatitude = company.CompanyLocationLatitude,
+                CompanyLocationLongitude = company.CompanyLocationLongitude,
+            };
         }
 
-        public Task<CompanyGetUpdateViewModel> UpdateCompany(CompanyGetUpdateViewModel company)
+        public async Task<CompanyGetUpdateViewModel> UpdateCompany(CompanyGetUpdateViewModel company, int adminCompanyId)
         {
-            throw new NotImplementedException();
+            if (company == null)
+            {
+                throw new ArgumentNullException(nameof(company), "The company parameter cannot be null.");
+            }
+
+            var companyById = await _context.Companys.FindAsync(company.Id);
+
+            if (companyById == null)
+            {
+                return null;
+            }
+
+            // Update properties
+            companyById.Name = company.Name;
+            companyById.CompanyLocationLatitude = company.CompanyLocationLatitude;
+            companyById.CompanyLocationLongitude = company.CompanyLocationLongitude;
+
+            _context.Companys.Update(companyById);
+            await _context.SaveChangesAsync();
+
+            return new CompanyGetUpdateViewModel
+            {
+                Id = companyById.Id,
+                Name = companyById.Name,
+                CompanyLocationLatitude = companyById.CompanyLocationLatitude,
+                CompanyLocationLongitude = companyById.CompanyLocationLongitude
+            };
         }
     }
 }
